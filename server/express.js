@@ -7,16 +7,12 @@ import cors from 'cors';
 import helmet from 'helmet';
 import path from 'path';
 import { JssProvider, SheetsRegistry } from 'react-jss';
-import {
-  createGenerateClassName,
-  createMuiTheme,
-  MuiThemeProvider,
-} from '@material-ui/core';
-import indigo from '@material-ui/core/colors/indigo';
-import pink from '@material-ui/core/colors/pink';
+import { createGenerateClassName, createMuiTheme, MuiThemeProvider } from '@material-ui/core';
 import ReactDOMServer from 'react-dom/server';
 import { StaticRouter } from 'react-router-dom';
 import React from 'react';
+import red from '@material-ui/core/colors/red';
+import brown from '@material-ui/core/colors/brown';
 import Template from '../template';
 import userRoutes from './routes/user.routes';
 import authRoutes from './routes/auth.routes';
@@ -53,19 +49,19 @@ app.get('*', (req, res) => {
   const theme = createMuiTheme({
     palette: {
       primary: {
-        light: '#757de8',
-        main: '#3f51b5',
-        dark: '#002984',
+        light: '#f05545',
+        main: '#b71c1c',
+        dark: '#7f0000',
         contrastText: '#fff',
       },
       secondary: {
-        light: '#ff79b0',
-        main: '#ff4081',
-        dark: '#c60055',
-        contrastText: '#000',
+        light: '#efdcd5',
+        main: '#d7ccc8',
+        dark: '#8c7b75',
+        contrastText: '#424242',
       },
-      openTitle: indigo['400'],
-      protectedTitle: pink['400'],
+      openTitle: red['500'],
+      protectedTitle: brown['300'],
       type: 'light',
     },
   });

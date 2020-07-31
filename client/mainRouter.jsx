@@ -8,6 +8,7 @@ import Profile from './user/profile';
 import PrivateRoute from './auth/PrivateRoute';
 import EditProfile from './user/editProfile';
 import Menu from './core/menu';
+import NewMedia from './media/newMedia';
 
 class MainRouter extends React.Component {
   componentDidMount = () => {
@@ -33,6 +34,11 @@ class MainRouter extends React.Component {
             component={EditProfile}
           />
           <Route path="/user/:userId" component={Profile} />
+
+          <PrivateRoute
+            path="/media/new"
+            component={NewMedia}
+          />
         </Switch>
       </>
     );
