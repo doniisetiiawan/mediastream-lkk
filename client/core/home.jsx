@@ -2,53 +2,63 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import Card from '@material-ui/core/Card';
 import Typography from '@material-ui/core/Typography';
-import CardMedia from '@material-ui/core/CardMedia';
-import CardContent from '@material-ui/core/CardContent';
 import { withStyles } from '@material-ui/core/styles';
-import seashellImg from '../assets/images/seashell.jpg';
+import MediaList from '../media/mediaList';
+import { listPopular } from '../media/api-media';
 
 const styles = (theme) => ({
   card: {
-    maxWidth: 600,
-    margin: 'auto',
-    marginTop: theme.spacing(5),
+    margin: `${theme.spacing(5)}px 30px`,
   },
   title: {
-    padding: `${theme.spacing(3)}px ${theme.spacing(2.5)}px
-${theme.spacing(2)}px`,
+    padding: `${theme.spacing(3)}px ${theme.spacing(
+      2.5,
+    )}px 0px`,
     color: theme.palette.text.secondary,
+    fontSize: '1em',
   },
   media: {
     minHeight: 330,
   },
 });
 
-function Home(props) {
-  const { classes } = props;
+class Home extends React.Component {
+  constructor(props) {
+    super(props);
 
-  return (
-    <>
-      <Card className={classes.card}>
-        <Typography
-          type="headline"
-          component="h2"
-          className={classes.title}
-        >
-          Home Page
-        </Typography>
-        <CardMedia
-          className={classes.media}
-          image={seashellImg}
-          title="Unicorn Shells"
-        />
-        <CardContent>
-          <Typography type="body1" component="p">
-            Welcome to the Mern Skeleton home page
+    this.state = {
+      media: [],
+    };
+  }
+
+  componentDidMount = () => {
+    listPopular().then((data) => {
+      if (data.error) {
+        console.log(data.error);
+      } else {
+        this.setState({ media: data });
+      }
+    });
+  };
+
+  render() {
+    const { classes } = this.props;
+
+    return (
+      <>
+        <Card className={classes.card}>
+          <Typography
+            type="headline"
+            component="h2"
+            className={classes.title}
+          >
+            Popular Videos
           </Typography>
-        </CardContent>
-      </Card>
-    </>
-  );
+          <MediaList media={this.state.media} />
+        </Card>
+      </>
+    );
+  }
 }
 
 export default withStyles(styles)(Home);
