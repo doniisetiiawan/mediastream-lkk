@@ -1,19 +1,19 @@
-/* eslint-disable react/prop-types,jsx-a11y/label-has-associated-control */
-import React, { Component } from 'react';
-import { withStyles } from '@material-ui/core/styles';
-import Card from '@material-ui/core/Card';
+/* eslint-disable no-unused-expressions,jsx-a11y/label-has-associated-control */
+import React, { useState } from 'react';
+import { makeStyles } from '@material-ui/styles';
 import { Redirect } from 'react-router-dom';
+import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
-import { AttachFile as FileUpload } from '@material-ui/icons';
+import FileUpload from '@material-ui/icons/AddToQueue';
 import TextField from '@material-ui/core/TextField';
 import Icon from '@material-ui/core/Icon';
 import CardActions from '@material-ui/core/CardActions';
-import { create } from './api-media';
 import auth from '../auth/auth-helper';
+import { create } from './api-media';
 
-const styles = (theme) => ({
+const useStyles = makeStyles((theme) => ({
   card: {
     maxWidth: 500,
     margin: 'auto',
@@ -30,8 +30,8 @@ const styles = (theme) => ({
     verticalAlign: 'middle',
   },
   textField: {
-    marginLeft: theme.spacing(),
-    marginRight: theme.spacing(),
+    marginLeft: theme.spacing(1),
+    marginRight: theme.spacing(1),
     width: 300,
   },
   submit: {
@@ -44,29 +44,28 @@ const styles = (theme) => ({
   filename: {
     marginLeft: '10px',
   },
-});
+}));
 
-class NewMedia extends Component {
-  constructor(props) {
-    super(props);
+function NewMedia() {
+  const classes = useStyles();
+  const [values, setValues] = useState({
+    title: '',
+    video: '',
+    description: '',
+    genre: '',
+    redirect: false,
+    error: '',
+    mediaId: '',
+  });
+  const jwt = auth.isAuthenticated();
 
-    this.state = {
-      title: '',
-      video: '',
-      description: '',
-      genre: '',
-      redirect: false,
-      error: '',
-      mediaId: '',
-    };
-  }
-
-  componentDidMount = () => {
-    this.mediaData = new FormData();
-  };
-
-  clickSubmit = () => {
-    const jwt = auth.isAuthenticated();
+  const clickSubmit = () => {
+    const mediaData = new FormData();
+    values.title && mediaData.append('title', values.title);
+    values.video && mediaData.append('video', values.video);
+    values.description
+      && mediaData.append('description', values.description);
+    values.genre && mediaData.append('genre', values.genre);
     create(
       {
         userId: jwt.user._id,
@@ -74,125 +73,114 @@ class NewMedia extends Component {
       {
         t: jwt.token,
       },
-      this.mediaData,
+      mediaData,
     ).then((data) => {
       if (data.error) {
-        this.setState({ error: data.error });
+        setValues({ ...values, error: data.error });
       } else {
-        this.setState({
-          redirect: true,
+        setValues({
+          ...values,
+          error: '',
           mediaId: data._id,
+          redirect: true,
         });
       }
     });
   };
 
-  handleChange = (name) => (event) => {
+  const handleChange = (name) => (event) => {
     const value = name === 'video'
       ? event.target.files[0]
       : event.target.value;
-    this.mediaData.set(name, value);
-    this.setState({ [name]: value });
+    setValues({ ...values, [name]: value });
   };
 
-  render() {
-    const { classes } = this.props;
-    if (this.state.redirect) {
-      return (
-        <Redirect to={`/media/${this.state.mediaId}`} />
-      );
-    }
-
-    return (
-      <>
-        <Card className={classes.card}>
-          <CardContent>
-            <Typography
-              type="headline"
-              component="h1"
-              className={classes.title}
-            >
-              New Video
-            </Typography>
-            <input
-              accept="video/*"
-              onChange={this.handleChange('video')}
-              className={classes.input}
-              id="icon-button-file"
-              type="file"
-            />
-            <label htmlFor="icon-button-file">
-              <Button
-                color="secondary"
-                variant="contained"
-                component="span"
-              >
-                Upload
-                <FileUpload />
-              </Button>
-            </label>{' '}
-            <span className={classes.filename}>
-              {this.state.video
-                ? this.state.video.name
-                : ''}
-            </span>
-            <br />
-            <TextField
-              id="title"
-              label="Title"
-              className={classes.textField}
-              value={this.state.title}
-              onChange={this.handleChange('title')}
-              margin="normal"
-            />
-            <br />
-            <TextField
-              id="multiline-flexible"
-              label="Description"
-              multiline
-              rows="2"
-              value={this.state.description}
-              onChange={this.handleChange('description')}
-              className={classes.textField}
-              margin="normal"
-            />
-            <br />
-            <TextField
-              id="genre"
-              label="Genre"
-              className={classes.textField}
-              value={this.state.genre}
-              onChange={this.handleChange('genre')}
-              margin="normal"
-            />
-            <br />
-            <br />{' '}
-            {this.state.error && (
-              <Typography component="p" color="error">
-                <Icon
-                  color="error"
-                  className={classes.error}
-                >
-                  error
-                </Icon>
-                {this.state.error}
-              </Typography>
-            )}
-          </CardContent>
-          <CardActions>
-            <Button
-              color="primary"
-              variant="contained"
-              onClick={this.clickSubmit}
-              className={classes.submit}
-            >
-              Submit
-            </Button>
-          </CardActions>
-        </Card>
-      </>
-    );
+  if (values.redirect) {
+    return <Redirect to={`/media/${values.mediaId}`} />;
   }
+
+  return (
+    <Card className={classes.card}>
+      <CardContent>
+        <Typography
+          type="headline"
+          component="h1"
+          className={classes.title}
+        >
+          New Video
+        </Typography>
+        <input
+          accept="video/*"
+          onChange={handleChange('video')}
+          className={classes.input}
+          id="icon-button-file"
+          type="file"
+        />
+        <label htmlFor="icon-button-file">
+          <Button
+            color="secondary"
+            variant="contained"
+            component="span"
+          >
+            Upload
+            <FileUpload />
+          </Button>
+        </label>{' '}
+        <span className={classes.filename}>
+          {values.video ? values.video.name : ''}
+        </span>
+        <br />
+        <TextField
+          id="title"
+          label="Title"
+          className={classes.textField}
+          value={values.title}
+          onChange={handleChange('title')}
+          margin="normal"
+        />
+        <br />
+        <TextField
+          id="multiline-flexible"
+          label="Description"
+          multiline
+          rows="2"
+          value={values.description}
+          onChange={handleChange('description')}
+          className={classes.textField}
+          margin="normal"
+        />
+        <br />
+        <TextField
+          id="genre"
+          label="Genre"
+          className={classes.textField}
+          value={values.genre}
+          onChange={handleChange('genre')}
+          margin="normal"
+        />
+        <br />
+        <br />{' '}
+        {values.error && (
+          <Typography component="p" color="error">
+            <Icon color="error" className={classes.error}>
+              error
+            </Icon>
+            {values.error}
+          </Typography>
+        )}
+      </CardContent>
+      <CardActions>
+        <Button
+          color="primary"
+          variant="contained"
+          onClick={clickSubmit}
+          className={classes.submit}
+        >
+          Submit
+        </Button>
+      </CardActions>
+    </Card>
+  );
 }
 
-export default withStyles(styles)(NewMedia);
+export default NewMedia;

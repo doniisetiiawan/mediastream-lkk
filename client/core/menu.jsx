@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import React from 'react';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -13,109 +12,91 @@ import Button from '@material-ui/core/Button';
 import auth from '../auth/auth-helper';
 
 const isActive = (history, path) => {
-  if (history.location.pathname === path) return { color: '#ff4081' };
-  return { color: '#ffffff' };
+  if (history.location.pathname == path) return { color: '#f99085' };
+  return { color: '#efdcd5' };
 };
 
-function Menu(props) {
+function Menu({ history }) {
   return (
-    <>
-      <AppBar position="static">
-        <Toolbar>
-          <Typography type="title" color="inherit">
-            MERN Mediastream
-          </Typography>
+    <AppBar position="static">
+      <Toolbar>
+        <Typography type="title" color="inherit">
+          MERN Mediastream
+        </Typography>
+        <div>
           <Link to="/">
             <IconButton
               aria-label="Home"
-              style={isActive(props.history, '/')}
+              style={isActive(history, '/')}
             >
               <HomeIcon />
             </IconButton>
           </Link>
-          {/* <Link to="/users"> */}
-          {/*  <Button */}
-          {/*    style={isActive(props.history, '/users')} */}
-          {/*  > */}
-          {/*    Users */}
-          {/*  </Button> */}
-          {/* </Link> */}
-
-          <div
-            style={{ position: 'absolute', right: '10px' }}
-          >
-            <span style={{ float: 'right' }}>
-              {!auth.isAuthenticated() && (
-                <span>
-                  <Link to="/signup">
-                    <Button
-                      style={isActive(
-                        props.history,
-                        '/signup',
-                      )}
-                    >
-                      Sign Up
-                    </Button>
-                  </Link>
-                  <Link to="/signin">
-                    <Button
-                      style={isActive(
-                        props.history,
-                        '/signin',
-                      )}
-                    >
-                      Sign In
-                    </Button>
-                  </Link>
-                </span>
-              )}
-
-              {auth.isAuthenticated() && (
-                <span>
-                  <Link to="/media/new">
-                    <Button
-                      style={isActive(
-                        props.history,
-                        '/media/new',
-                      )}
-                    >
-                      <AddBoxIcon
-                        style={{ marginRight: '8px' }}
-                      />{' '}
-                      Add Media
-                    </Button>
-                  </Link>
-                  <Link
-                    to={`/user/${
-                      auth.isAuthenticated().user._id
-                    }`}
-                  >
-                    <Button
-                      style={isActive(
-                        props.history,
-                        `/user/${
-                          auth.isAuthenticated().user._id
-                        }`,
-                      )}
-                    >
-                      My Profile
-                    </Button>
-                  </Link>
+        </div>
+        <div
+          style={{ position: 'absolute', right: '10px' }}
+        >
+          <span style={{ float: 'right' }}>
+            {!auth.isAuthenticated() && (
+              <span>
+                <Link to="/signup">
                   <Button
-                    color="inherit"
-                    onClick={() => {
-                      auth.signout(() => props.history.push('/'));
-                    }}
+                    style={isActive(history, '/signup')}
                   >
-                    Sign out
+                    Sign up
                   </Button>
-                </span>
-              )}
-            </span>
-          </div>
-        </Toolbar>
-      </AppBar>
-    </>
+                </Link>
+                <Link to="/signin">
+                  <Button
+                    style={isActive(history, '/signin')}
+                  >
+                    Sign In
+                  </Button>
+                </Link>
+              </span>
+            )}
+            {auth.isAuthenticated() && (
+              <span>
+                <Link to="/media/new">
+                  <Button
+                    style={isActive(history, '/media/new')}
+                  >
+                    <AddBoxIcon
+                      style={{ marginRight: '8px' }}
+                    />{' '}
+                    Add Media
+                  </Button>
+                </Link>
+                <Link
+                  to={`/user/${
+                    auth.isAuthenticated().user._id
+                  }`}
+                >
+                  <Button
+                    style={isActive(
+                      history,
+                      `/user/${
+                        auth.isAuthenticated().user._id
+                      }`,
+                    )}
+                  >
+                    My Profile
+                  </Button>
+                </Link>
+                <Button
+                  color="inherit"
+                  onClick={() => {
+                    auth.signout(() => history.push('/'));
+                  }}
+                >
+                  Sign out
+                </Button>
+              </span>
+            )}
+          </span>
+        </div>
+      </Toolbar>
+    </AppBar>
   );
 }
 
