@@ -10,6 +10,7 @@ import EditProfile from './user/editProfile';
 import Menu from './core/menu';
 import NewMedia from './media/newMedia';
 import PlayMedia from './media/playMedia';
+import EditMedia from './media/editMedia';
 
 class MainRouter extends React.Component {
   componentDidMount = () => {
@@ -40,11 +41,13 @@ class MainRouter extends React.Component {
             path="/media/new"
             component={NewMedia}
           />
+          <PrivateRoute
+            path="/media/edit/:mediaId"
+            component={EditMedia}
+          />
           <Route
             path="/media/:mediaId"
-            render={() => (
-              <PlayMedia />
-            )}
+            render={(props) => <PlayMedia {...props} />}
           />
         </Switch>
       </>

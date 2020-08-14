@@ -68,6 +68,50 @@ const read = async (params, signal) => {
   }
 };
 
+const update = async (params, credentials, media) => {
+  try {
+    const response = await fetch(
+      `/api/media/${params.mediaId}`,
+      {
+        method: 'PUT',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${credentials.t}`,
+        },
+        body: JSON.stringify(media),
+      },
+    );
+    return await response.json();
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+const remove = async (params, credentials) => {
+  try {
+    const response = await fetch(
+      `/api/media/${params.mediaId}`,
+      {
+        method: 'DELETE',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${credentials.t}`,
+        },
+      },
+    );
+    return await response.json();
+  } catch (err) {
+    console.log(err);
+  }
+};
+
 export {
-  create, listPopular, listByUser, read,
+  create,
+  listPopular,
+  listByUser,
+  read,
+  update,
+  remove,
 };

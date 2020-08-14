@@ -19,14 +19,15 @@ const useStyles = makeStyles(() => ({
 function PlayMedia(props) {
   const classes = useStyles();
   const [media, setMedia] = useState({ postedBy: {} });
-  const [relatedMedia, setRelatedMedia] = useState([]);
-  const [autoPlay, setAutoPlay] = useState(false);
 
   useEffect(() => {
     const abortController = new AbortController();
     const { signal } = abortController;
 
-    read({ mediaId: props.match.params.mediaId }, signal).then((data) => {
+    read(
+      { mediaId: props.match.params.mediaId },
+      signal,
+    ).then((data) => {
       if (data && data.error) {
         console.log(data.error);
       } else {
@@ -38,9 +39,6 @@ function PlayMedia(props) {
     };
   }, [props.match.params.mediaId]);
 
-  const handleChange = (event) => {
-    setAutoPlay(event.target.checked);
-  };
   return (
     <div className={classes.root}>
       <Grid container spacing={8}>
