@@ -19,31 +19,54 @@ const create = async (params, credentials, media) => {
   }
 };
 
-const listPopular = () => fetch('/api/media/popular', {
-  method: 'GET',
-  headers: {
-    Accept: 'application/json',
-    'Content-Type': 'application/json',
-  },
-})
-  .then((response) => response.json())
-  .catch((err) => console.log(err));
+const listPopular = async (signal) => {
+  try {
+    const response = await fetch('/api/media/popular', {
+      method: 'GET',
+      signal,
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+    });
+    return await response.json();
+  } catch (err) {
+    console.log(err);
+  }
+};
 
-const listByUser = (params) => fetch(`/api/media/by/${params.userId}`, {
-  method: 'GET',
-  headers: {
-    Accept: 'application/json',
-    'Content-Type': 'application/json',
-  },
-})
-  .then((response) => response.json())
-  .catch((err) => console.log(err));
+const listByUser = async (params) => {
+  try {
+    const response = await fetch(
+      `/api/media/by/${params.userId}`,
+      {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+      },
+    );
+    return await response.json();
+  } catch (err) {
+    console.log(err);
+  }
+};
 
-const read = (params) => fetch(`${config.serverUrl}/api/media/${params.mediaId}`, {
-  method: 'GET',
-})
-  .then((response) => response.json())
-  .catch((err) => console.log(err));
+const read = async (params, signal) => {
+  try {
+    const response = await fetch(
+      `${config.serverUrl}/api/media/${params.mediaId}`,
+      {
+        method: 'GET',
+        signal,
+      },
+    );
+    return await response.json();
+  } catch (err) {
+    console.log(err);
+  }
+};
 
 export {
   create, listPopular, listByUser, read,

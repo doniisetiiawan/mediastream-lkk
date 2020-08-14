@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
-import Grid from 'gridfs-stream';
 import formidable from 'formidable';
 import fs from 'fs';
+import extend from 'lodash/extend';
 import Media from '../models/media.model';
 import errorHandler from '../helpers/dbErrorHandler';
 
@@ -65,6 +65,7 @@ const mediaByID = async (req, res, next, id) => {
         error: 'No video found',
       });
     }
+    // eslint-disable-next-line prefer-destructuring
     req.file = files[0];
     next();
   } catch (err) {

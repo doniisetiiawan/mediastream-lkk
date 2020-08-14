@@ -1,27 +1,25 @@
 /* eslint-disable react/prop-types */
-import React, { Component } from 'react';
-import {
-  Link,
-  Redirect,
-  withRouter,
-} from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Link, Redirect } from 'react-router-dom';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemAvatar from '@material-ui/core/ListItemAvatar';
 import Avatar from '@material-ui/core/Avatar';
-import { Person, Edit } from '@material-ui/icons';
+import { Edit } from '@material-ui/icons';
 import ListItemText from '@material-ui/core/ListItemText';
 import Divider from '@material-ui/core/Divider';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import IconButton from '@material-ui/core/IconButton';
-import { withStyles } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/styles';
 import auth from '../auth/auth-helper';
-import { read } from './api-user';
 import DeleteUser from './deleteUser';
+import { read } from './api-user';
+import { listByUser } from '../media/api-media';
+import MediaList from '../media/mediaList';
 
-const styles = (theme) => ({
+const useStyles = makeStyles((theme) => ({
   root: theme.mixins.gutters({
     maxWidth: 600,
     margin: 'auto',
@@ -29,96 +27,117 @@ const styles = (theme) => ({
     marginTop: theme.spacing(5),
   }),
   title: {
-    margin: `${theme.spacing(3)}px 0 ${theme.spacing(2)}px`,
+    marginTop: theme.spacing(3),
     color: theme.palette.protectedTitle,
   },
-});
+  avatar: {
+    color: theme.palette.primary.contrastText,
+    backgroundColor: theme.palette.primary.light,
+  },
+}));
 
-class Profile extends Component {
-  constructor(props) {
-    super(props);
+function Profile({ match }) {
+  const classes = useStyles();
+  const [user, setUser] = useState({});
+  const [redirectToSignin, setRedirectToSignin] = useState(
+    false,
+  );
+  const jwt = auth.isAuthenticated();
+  const [media, setMedia] = useState([]);
 
-    this.state = {
-      user: '',
-      redirectToSignin: false,
-    };
-  }
+  useEffect(() => {
+    const abortController = new AbortController();
+    const { signal } = abortController;
 
-  init = (userId) => {
-    const jwt = auth.isAuthenticated();
-    read({ userId }, { t: jwt.token }).then((data) => {
-      if (data.error) this.setState({ redirectToSignin: true });
-      else this.setState({ user: data });
+    read(
+      {
+        userId: match.params.userId,
+      },
+      { t: jwt.token },
+      signal,
+    ).then((data) => {
+      if (data && data.error) {
+        setRedirectToSignin(true);
+      } else {
+        setUser(data);
+      }
     });
-  };
 
-  // eslint-disable-next-line camelcase
-  UNSAFE_componentWillReceiveProps = (props) => {
-    this.init(props.match.params.userId);
-  };
+    return function cleanup() {
+      abortController.abort();
+    };
+  }, [match.params.userId]);
 
-  componentDidMount = () => {
-    this.init(this.props.match.params.userId);
-  };
+  useEffect(() => {
+    const abortController = new AbortController();
+    const { signal } = abortController;
 
-  render() {
-    const { classes } = this.props;
-    const { redirectToSignin } = this.state;
-    if (redirectToSignin) {
-      return <Redirect to="/signin" />;
-    }
+    listByUser(
+      {
+        userId: match.params.userId,
+      },
+      { t: jwt.token },
+      signal,
+    ).then((data) => {
+      if (data && data.error) {
+        setRedirectToSignin(true);
+      } else {
+        setMedia(data);
+      }
+    });
 
-    return (
-      <>
-        <Paper className={classes.root} elevation={4}>
-          <Typography
-            type="title"
-            className={classes.title}
-          >
-            Profile
-          </Typography>
-          <List dense>
-            <ListItem>
-              <ListItemAvatar>
-                <Avatar>
-                  <Person />
-                </Avatar>
-              </ListItemAvatar>
-              <ListItemText
-                primary={this.state.user.name}
-                secondary={this.state.user.email}
-              />
+    return function cleanup() {
+      abortController.abort();
+    };
+  }, [match.params.userId]);
 
-              {auth.isAuthenticated().user
-                && auth.isAuthenticated().user._id
-                  === this.state.user._id && (
-                  <ListItemSecondaryAction>
-                    <Link
-                      to={`/user/edit/${this.state.user._id}`}
-                    >
-                      <IconButton color="primary">
-                        <Edit />
-                      </IconButton>
-                    </Link>
-                    <DeleteUser
-                      userId={this.state.user._id}
-                    />
-                  </ListItemSecondaryAction>
-              )}
-            </ListItem>
-            <Divider />
-            <ListItem>
-              <ListItemText
-                primary={`Joined: ${new Date(
-                  this.state.user.created,
-                ).toDateString()}`}
-              />
-            </ListItem>
-          </List>
-        </Paper>
-      </>
-    );
+  if (redirectToSignin) {
+    return <Redirect to="/signin" />;
   }
+
+  return (
+    <Paper className={classes.root} elevation={4}>
+      <Typography variant="h6" className={classes.title}>
+        Profile
+      </Typography>
+      <List dense>
+        <ListItem>
+          <ListItemAvatar>
+            <Avatar className={classes.avatar}>
+              {user.name && user.name[0]}
+            </Avatar>
+          </ListItemAvatar>
+          <ListItemText
+            primary={user.name}
+            secondary={user.email}
+          />{' '}
+          {auth.isAuthenticated().user
+            && auth.isAuthenticated().user._id == user._id && (
+              <ListItemSecondaryAction>
+                <Link to={`/user/edit/${user._id}`}>
+                  <IconButton
+                    aria-label="Edit"
+                    color="primary"
+                  >
+                    <Edit />
+                  </IconButton>
+                </Link>
+                <DeleteUser userId={user._id} />
+              </ListItemSecondaryAction>
+          )}
+        </ListItem>
+        <Divider />
+        <ListItem>
+          <ListItemText
+            primary={`Joined: ${new Date(
+              user.created,
+            ).toDateString()}`}
+          />
+        </ListItem>
+        <MediaList media={media} />
+      </List>
+    </Paper>
+  );
 }
 
-export default withStyles(styles)(withRouter(Profile));
+export default Profile;

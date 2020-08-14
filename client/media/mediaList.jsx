@@ -1,13 +1,13 @@
-/* eslint-disable react/prop-types,react/no-array-index-key */
+/* eslint-disable react/no-array-index-key */
 import React from 'react';
-import { withStyles } from '@material-ui/core/styles';
 import GridList from '@material-ui/core/GridList';
 import GridListTile from '@material-ui/core/GridListTile';
 import { Link } from 'react-router-dom';
 import ReactPlayer from 'react-player';
 import GridListTileBar from '@material-ui/core/GridListTileBar';
+import { makeStyles } from '@material-ui/styles';
 
-const styles = (theme) => ({
+const useStyles = makeStyles((theme) => ({
   root: {
     display: 'flex',
     flexWrap: 'wrap',
@@ -23,7 +23,7 @@ const styles = (theme) => ({
     padding: '0px 0 10px',
   },
   title: {
-    padding: `${theme.spacing(5)}px ${theme.spacing(
+    padding: `${theme.spacing(3)}px ${theme.spacing(
       2.5,
     )}px ${theme.spacing(2)}px`,
     color: theme.palette.openTitle,
@@ -49,10 +49,10 @@ const styles = (theme) => ({
     color: 'rgb(193, 182, 164)',
     marginRight: '8px',
   },
-});
+}));
 
 function MediaList(props) {
-  const { classes } = props;
+  const classes = useStyles();
 
   return (
     <div className={classes.root}>
@@ -94,4 +94,4 @@ function MediaList(props) {
   );
 }
 
-export default withStyles(styles)(MediaList);
+export default MediaList;

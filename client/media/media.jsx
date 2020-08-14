@@ -1,13 +1,12 @@
-import React, { Component } from 'react';
+import React from 'react';
 
-class Media extends Component {
-  render() {
-    return (
-      <div>
-        Media
-      </div>
-    );
-  }
+function Media(props) {
+  console.log(props);
+  return (
+    <div>
+      Medias
+    </div>
+  );
 }
 
 export default Media;
