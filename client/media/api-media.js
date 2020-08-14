@@ -107,6 +107,25 @@ const remove = async (params, credentials) => {
   }
 };
 
+const listRelated = async (params, signal) => {
+  try {
+    const response = await fetch(
+      `/api/media/related/${params.mediaId}`,
+      {
+        method: 'GET',
+        signal,
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+      },
+    );
+    return await response.json();
+  } catch (err) {
+    console.log(err);
+  }
+};
+
 export {
   create,
   listPopular,
@@ -114,4 +133,5 @@ export {
   read,
   update,
   remove,
+  listRelated,
 };
