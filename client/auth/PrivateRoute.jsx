@@ -1,4 +1,4 @@
-/* eslint-disable react/prop-types,no-unused-vars */
+// eslint-disable-next-line no-unused-vars
 import React, { Component } from 'react';
 import { Route, Redirect } from 'react-router-dom';
 import auth from './auth-helper';

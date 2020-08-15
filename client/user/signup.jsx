@@ -1,5 +1,4 @@
-import PropTypes from 'prop-types';
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
@@ -13,10 +12,10 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogActions from '@material-ui/core/DialogActions';
 import { Link } from 'react-router-dom';
-import { withStyles } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/styles';
 import { create } from './api-user';
 
-const styles = (theme) => ({
+const useStyles = makeStyles((theme) => ({
   card: {
     maxWidth: 600,
     margin: 'auto',
@@ -32,141 +31,125 @@ const styles = (theme) => ({
     color: theme.palette.openTitle,
   },
   textField: {
-    marginLeft: theme.spacing(),
-    marginRight: theme.spacing(),
+    marginLeft: theme.spacing(1),
+    marginRight: theme.spacing(1),
     width: 300,
   },
   submit: {
     margin: 'auto',
     marginBottom: theme.spacing(2),
   },
-});
+}));
 
-class Signup extends Component {
-  constructor(props) {
-    super(props);
+function Signup() {
+  const classes = useStyles();
+  const [values, setValues] = useState({
+    name: '',
+    password: '',
+    email: '',
+    open: false,
+    error: '',
+  });
 
-    this.state = {
-      name: '',
-      password: '',
-      email: '',
-      open: false,
-      error: '',
-    };
-  }
-
-  handleChange = (name) => (event) => {
-    this.setState({ [name]: event.target.value });
+  const handleChange = (name) => (event) => {
+    setValues({ ...values, [name]: event.target.value });
   };
 
-  clickSubmit = () => {
+  const clickSubmit = () => {
     const user = {
-      name: this.state.name || undefined,
-      email: this.state.email || undefined,
-      password: this.state.password || undefined,
+      name: values.name || undefined,
+      email: values.email || undefined,
+      password: values.password || undefined,
     };
     create(user).then((data) => {
-      if (data.error) this.setState({ error: data.error });
-      else this.setState({ error: '', open: true });
+      if (data.error) {
+        setValues({ ...values, error: data.error });
+      } else {
+        setValues({ ...values, error: '', open: true });
+      }
     });
   };
 
-  render() {
-    const { classes } = this.props;
-
-    return (
-      <>
-        <Card className={classes.card}>
-          <CardContent>
-            <Typography
-              type="headline"
-              component="h2"
-              className={classes.title}
-            >
-              Sign Up
+  return (
+    <div>
+      <Card className={classes.card}>
+        <CardContent>
+          <Typography
+            variant="h6"
+            className={classes.title}
+          >
+            Sign Up
+          </Typography>
+          <TextField
+            id="name"
+            label="Name"
+            className={classes.textField}
+            value={values.name}
+            onChange={handleChange('name')}
+            margin="normal"
+          />
+          <br />
+          <TextField
+            id="email"
+            type="email"
+            label="Email"
+            className={classes.textField}
+            value={values.email}
+            onChange={handleChange('email')}
+            margin="normal"
+          />
+          <br />
+          <TextField
+            id="password"
+            type="password"
+            label="Password"
+            className={classes.textField}
+            value={values.password}
+            onChange={handleChange('password')}
+            margin="normal"
+          />
+          <br />{' '}
+          {values.error && (
+            <Typography component="p" color="error">
+              <Icon color="error" className={classes.error}>
+                error
+              </Icon>
+              {values.error}
             </Typography>
-            <TextField
-              id="name"
-              label="Name"
-              className={classes.textField}
-              value={this.state.name}
-              onChange={this.handleChange('name')}
-              margin="normal"
-            />
-            <br />
-            <TextField
-              id="email"
-              type="email"
-              label="Email"
-              className={classes.textField}
-              value={this.state.email}
-              onChange={this.handleChange('email')}
-              margin="normal"
-            />
-            <br />
-            <TextField
-              id="password"
-              type="password"
-              label="Password"
-              className={classes.textField}
-              value={this.state.password}
-              onChange={this.handleChange('password')}
-              margin="normal"
-            />
-            <br />
-            {this.state.error && (
-              <Typography component="p" color="error">
-                <Icon
-                  color="error"
-                  className={classes.error}
-                >
-                  error
-                </Icon>
-                {this.state.error}
-              </Typography>
-            )}
-          </CardContent>
-          <CardActions>
+          )}
+        </CardContent>
+        <CardActions>
+          <Button
+            color="primary"
+            variant="contained"
+            onClick={clickSubmit}
+            className={classes.submit}
+          >
+            Submit
+          </Button>
+        </CardActions>
+      </Card>
+      <Dialog open={values.open} disableBackdropClick>
+        <DialogTitle>New Account</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            New account successfully created.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Link to="/signin">
             <Button
               color="primary"
-              raised="contained"
-              onClick={this.clickSubmit}
-              className={classes.submit}
+              autoFocus="autoFocus"
+              variant="contained"
             >
-              Submit
+              Sign In
             </Button>
-          </CardActions>
-
-          <Dialog
-            open={this.state.open}
-            disableBackdropClick
-          >
-            <DialogTitle>New Account</DialogTitle>
-            <DialogContent>
-              <DialogContentText>
-                New account successfully created.
-              </DialogContentText>
-            </DialogContent>
-            <DialogActions>
-              <Link to="/signin">
-                <Button
-                  color="primary"
-                  autoFocus="autoFocus"
-                  variant="contained"
-                >
-                  Sign In
-                </Button>
-              </Link>
-            </DialogActions>
-          </Dialog>
-        </Card>
-      </>
-    );
-  }
+          </Link>
+        </DialogActions>
+      </Dialog>
+    </div>
+  );
 }
 
-export default withStyles(styles)(Signup);
-
-Signup.propTypes = {
-  classes: PropTypes.objectOf(PropTypes.any).isRequired,
-};
+export default Signup;

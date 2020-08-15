@@ -21,8 +21,8 @@ const useStyles = makeStyles(() => ({
 
 function PlayMedia(props) {
   const classes = useStyles();
-  const [media, setMedia] = useState({ postedBy: {} });
-  const [relatedMedia, setRelatedMedia] = useState([]);
+  let [media, setMedia] = useState({ postedBy: {} });
+  let [relatedMedia, setRelatedMedia] = useState([]);
   const [autoPlay, setAutoPlay] = useState(false);
 
   useEffect(() => {
@@ -90,6 +90,7 @@ function PlayMedia(props) {
     }
   };
 
+  // render SSR data
   if (props.data && props.data[0] != null) {
     media = props.data[0];
     relatedMedia = [];
@@ -109,7 +110,6 @@ function PlayMedia(props) {
             handleAutoplay={handleAutoplay}
           />
         </Grid>
-
         {relatedMedia.length > 0 && (
           <Grid item xs={4} sm={4}>
             <FormControlLabel

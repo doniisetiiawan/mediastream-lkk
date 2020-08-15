@@ -37,9 +37,11 @@ const useStyles = makeStyles((theme) => ({
 
 function Media(props) {
   const classes = useStyles();
+
   const mediaUrl = props.media._id
     ? `/api/media/video/${props.media._id}`
     : null;
+
   const { nextUrl } = props;
 
   return (

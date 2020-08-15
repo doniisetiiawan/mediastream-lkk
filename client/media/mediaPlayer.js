@@ -1,4 +1,4 @@
-/* eslint-disable no-nested-ternary */
+/* eslint-disable no-nested-ternary,react/no-find-dom-node */
 import React, { useEffect, useRef, useState } from 'react';
 import { makeStyles } from '@material-ui/styles';
 import ReactPlayer from 'react-player';
@@ -119,7 +119,7 @@ function MediaPlayer(props) {
     setDuration(duration);
   };
 
-  const onSeekMouseDown = (e) => {
+  const onSeekMouseDown = () => {
     setSeeking(true);
   };
 
@@ -164,7 +164,6 @@ function MediaPlayer(props) {
           Video Error. Try again later.
         </p>
       )}
-
       <div className={classes.flex}>
         <ReactPlayer
           ref={ref}
@@ -193,7 +192,6 @@ function MediaPlayer(props) {
         />
         <br />
       </div>
-
       <div className={classes.controls}>
         <LinearProgress
           color="primary"
@@ -218,6 +216,7 @@ function MediaPlayer(props) {
           onMouseUp={onSeekMouseUp}
           className={classes.rangeRoot}
         />
+
         <IconButton color="primary" onClick={playPause}>
           <Icon>
             {playing

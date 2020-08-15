@@ -1,6 +1,4 @@
-/* eslint-disable react/prop-types */
-import React, { Component } from 'react';
-import { Redirect, withRouter } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
@@ -8,11 +6,12 @@ import TextField from '@material-ui/core/TextField';
 import Icon from '@material-ui/core/Icon';
 import CardActions from '@material-ui/core/CardActions';
 import Button from '@material-ui/core/Button';
-import { withStyles } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/styles';
+import { Redirect } from 'react-router-dom';
 import auth from '../auth/auth-helper';
 import { update, read } from './api-user';
 
-const styles = (theme) => ({
+const useStyles = makeStyles((theme) => ({
   card: {
     maxWidth: 600,
     margin: 'auto',
@@ -28,68 +27,74 @@ const styles = (theme) => ({
     verticalAlign: 'middle',
   },
   textField: {
-    marginLeft: theme.spacing(),
-    marginRight: theme.spacing(),
+    marginLeft: theme.spacing(1),
+    marginRight: theme.spacing(1),
     width: 300,
   },
   submit: {
     margin: 'auto',
     marginBottom: theme.spacing(2),
   },
-});
+}));
 
-class EditProfile extends Component {
-  constructor(props) {
-    super(props);
+function EditProfile({ match }) {
+  const classes = useStyles();
+  const [values, setValues] = useState({
+    name: '',
+    password: '',
+    email: '',
+    open: false,
+    error: '',
+    redirectToProfile: false,
+  });
+  const jwt = auth.isAuthenticated();
 
-    this.state = {
-      name: '',
-      email: '',
-      password: '',
-      redirectToProfile: false,
-      error: '',
-    };
-  }
+  useEffect(() => {
+    const abortController = new AbortController();
+    const { signal } = abortController;
 
-  componentDidMount = () => {
-    const jwt = auth.isAuthenticated();
     read(
       {
-        userId: this.props.match.params.userId,
+        userId: match.params.userId,
       },
       { t: jwt.token },
+      signal,
     ).then((data) => {
-      if (data.error) {
-        this.setState({ error: data.error });
+      if (data && data.error) {
+        setValues({ ...values, error: data.error });
       } else {
-        this.setState({
+        setValues({
+          ...values,
           name: data.name,
           email: data.email,
         });
       }
     });
-  };
+    return function cleanup() {
+      abortController.abort();
+    };
+  }, [match.params.userId]);
 
-  clickSubmit = () => {
-    const jwt = auth.isAuthenticated();
+  const clickSubmit = () => {
     const user = {
-      name: this.state.name || undefined,
-      email: this.state.email || undefined,
-      password: this.state.password || undefined,
+      name: values.name || undefined,
+      email: values.email || undefined,
+      password: values.password || undefined,
     };
     update(
       {
-        userId: this.props.match.params.userId,
+        userId: match.params.userId,
       },
       {
         t: jwt.token,
       },
       user,
     ).then((data) => {
-      if (data.error) {
-        this.setState({ error: data.error });
+      if (data && data.error) {
+        setValues({ ...values, error: data.error });
       } else {
-        this.setState({
+        setValues({
+          ...values,
           userId: data._id,
           redirectToProfile: true,
         });
@@ -97,82 +102,70 @@ class EditProfile extends Component {
     });
   };
 
-  handleChange = (name) => (event) => {
-    this.setState({ [name]: event.target.value });
+  const handleChange = (name) => (event) => {
+    setValues({ ...values, [name]: event.target.value });
   };
 
-  render() {
-    const { classes } = this.props;
-    if (this.state.redirectToProfile) {
-      return <Redirect to={`/user/${this.state.userId}`} />;
-    }
-
-    return (
-      <>
-        <Card className={classes.card}>
-          <CardContent>
-            <Typography
-              type="headline"
-              component="h2"
-              className={classes.title}
-            >
-              Edit Profile
-            </Typography>
-            <TextField
-              id="name"
-              label="Name"
-              className={classes.textField}
-              value={this.state.name}
-              onChange={this.handleChange('name')}
-              margin="normal"
-            />
-            <br />
-            <TextField
-              id="email"
-              type="email"
-              label="Email"
-              className={classes.textField}
-              value={this.state.email}
-              onChange={this.handleChange('email')}
-              margin="normal"
-            />
-            <br />
-            <TextField
-              id="password"
-              type="password"
-              label="Password"
-              className={classes.textField}
-              value={this.state.password}
-              onChange={this.handleChange('password')}
-              margin="normal"
-            />
-            <br />{' '}
-            {this.state.error && (
-              <Typography component="p" color="error">
-                <Icon
-                  color="error"
-                  className={classes.error}
-                >
-                  error
-                </Icon>
-                {this.state.error}
-              </Typography>
-            )}
-          </CardContent>
-          <CardActions>
-            <Button
-              color="primary"
-              variant="contained"
-              onClick={this.clickSubmit}
-              className={classes.submit}
-            >
-              Submit
-            </Button>
-          </CardActions>
-        </Card>
-      </>
-    );
+  if (values.redirectToProfile) {
+    return <Redirect to={`/user/${values.userId}`} />;
   }
+
+  return (
+    <Card className={classes.card}>
+      <CardContent>
+        <Typography variant="h6" className={classes.title}>
+          Edit Profile
+        </Typography>
+        <TextField
+          id="name"
+          label="Name"
+          className={classes.textField}
+          value={values.name}
+          onChange={handleChange('name')}
+          margin="normal"
+        />
+        <br />
+        <TextField
+          id="email"
+          type="email"
+          label="Email"
+          className={classes.textField}
+          value={values.email}
+          onChange={handleChange('email')}
+          margin="normal"
+        />
+        <br />
+        <TextField
+          id="password"
+          type="password"
+          label="Password"
+          className={classes.textField}
+          value={values.password}
+          onChange={handleChange('password')}
+          margin="normal"
+        />
+        <br />{' '}
+        {values.error && (
+          <Typography component="p" color="error">
+            <Icon color="error" className={classes.error}>
+              error
+            </Icon>
+            {values.error}
+          </Typography>
+        )}
+      </CardContent>
+      <CardActions>
+        <Button
+          color="primary"
+          variant="contained"
+          onClick={clickSubmit}
+          className={classes.submit}
+        >
+          Submit
+        </Button>
+      </CardActions>
+    </Card>
+  );
 }
 
-export default withStyles(styles)(withRouter(EditProfile));
+export default EditProfile;

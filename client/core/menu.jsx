@@ -86,7 +86,7 @@ function Menu({ history }) {
                 <Button
                   color="inherit"
                   onClick={() => {
-                    auth.signout(() => history.push('/'));
+                    auth.clearJWT(() => history.push('/'));
                   }}
                 >
                   Sign out

@@ -54,7 +54,9 @@ function DeleteMedia(props) {
       </IconButton>
 
       <Dialog open={open} onClose={handleRequestClose}>
-        <DialogTitle>{`Delete ${props.mediaTitle}`}</DialogTitle>
+        <DialogTitle>
+          {`Delete ${props.mediaTitle}`}
+        </DialogTitle>
         <DialogContent>
           <DialogContentText>
             Confirm to delete {props.mediaTitle} from your
