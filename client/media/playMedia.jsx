@@ -90,6 +90,11 @@ function PlayMedia(props) {
     }
   };
 
+  if (props.data && props.data[0] != null) {
+    media = props.data[0];
+    relatedMedia = [];
+  }
+
   const nextUrl = relatedMedia.length > 0
     ? `/media/${relatedMedia[0]._id}`
     : '';
